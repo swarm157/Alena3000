@@ -46,18 +46,19 @@ public class Boot {
                             if (bot.rebornEnergy==0) {
                                 bot.alive = false;
                             }
+                            Code code = bot.gen.get(bot.position);
                                 //bot.alive=false;
-                            switch (bot.gen.get(bot.position)) {
+                            switch (code) {
 
                                 case moveLeft:
-                                    if (i!=0&&!matrix[i-1][o].alive) {
+                                    if (isNotOnBorder(i, o) &&!matrix[i-1][o].alive) {
                                         matrix[i][o] = matrix[i-1][o];
                                         matrix[i-1][o] = bot;
                                     }
                                     break;
 
                                 case moveRight:
-                                    if (i<=98&&!matrix[i+1][o].alive) {
+                                    if (isNotOnBorder(i, o) &&!matrix[i+1][o].alive) {
                                         matrix[i][o] = matrix[i+1][o];
                                         matrix[i+1][o] = bot;
                                     }
@@ -75,34 +76,34 @@ public class Boot {
                                     break;
                                 case moveDown:
                                     if (o+1!=50||(i>40&&i<60))
-                                    if (o<=98&&!matrix[i][o+1].alive) {
-                                        matrix[i][o] = matrix[i][o+1];
-                                        matrix[i][o+1] = bot;
-                                    }
+                                        if (isNotOnBorder(i, o) &&!getByEnumContainSide(code, i, o).alive) {
+                                            matrix[i][o] = matrix[i][o+1];
+                                            matrix[i][o+1] = bot;
+                                        }
                                     break;
                                 case eatLeft:
-                                    if (i!=0&&matrix[i-1][o].alive) {
+                                    if (isNotOnBorder(i, o) &&getByEnumContainSide(code, i, o).alive) {
                                         bot.energy+=matrix[i-1][o].energy;
                                         matrix[i-1][o].energy=0;
                                         matrix[i-1][o].alive=false;
                                     }
                                     break;
                                 case eatRight:
-                                    if (i<=98&&matrix[i+1][o].alive) {
+                                    if (isNotOnBorder(i, o) &&getByEnumContainSide(code, i, o).alive) {
                                         bot.energy+=matrix[i+1][o].energy;
                                         matrix[i+1][o].energy=0;
                                         matrix[i+1][o].alive=false;
                                     }
                                     break;
                                 case eatUp:
-                                    if (o!=0&&matrix[i][o-1].alive) {
+                                    if (isNotOnBorder(i, o) &&getByEnumContainSide(code, i, o).alive) {
                                         bot.energy+=matrix[i][o-1].energy;
                                         matrix[i][o-1].energy=0;
                                         matrix[i][o-1].alive=false;
                                     }
                                     break;
                                 case eatDown:
-                                    if (o<=98&&matrix[i][o+1].alive) {
+                                    if (isNotOnBorder(i, o) &&getByEnumContainSide(code, i, o).alive) {
                                         bot.energy+=matrix[i][o+1].energy;
                                         matrix[i][o+1].energy=0;
                                         matrix[i][o+1].alive=false;
@@ -127,5 +128,26 @@ public class Boot {
         });
         stepper.start();
         timer.start();
+    }
+
+    static boolean isNotOnBorder(int i, int o) {
+        return i != 0 && o != 0 && i != 99 && o != 99;
+    }
+
+    static Bot getByEnumContainSide(Code code, int i, int o) {
+        String t = code.toString();
+        if (t.toLowerCase().contains("left")) {
+            return  matrix[i-1][o];
+        }
+        if (t.toLowerCase().contains("right")) {
+            return  matrix[i+1][o];
+        }
+        if (t.toLowerCase().contains("up")) {
+            return  matrix[i][o-1];
+        }
+        if (t.toLowerCase().contains("down")) {
+            return  matrix[i][o+1];
+        }
+        return null;
     }
 }
